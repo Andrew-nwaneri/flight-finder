@@ -1,3 +1,5 @@
+
+
 export const findFlights = async ({
   origin,
   destination,
@@ -59,5 +61,50 @@ export const findFlights = async ({
   }
 };
 
+import OpenAI from "openai";
 
+export const getIataCode = async (city) => {
+  const system_prompt = "Act as an air travel information system. Given a city name, find its primary International Air Transport Association (IATA) airport code (3 letters). Respond ONLY with the 3-letter code. If multiple major airports exist (e.g., London), use the city code (e.g., LON). If no code is found, respond with 'NOT_FOUND'."
+  const client = new OpenAI({apiKey: import.meta.env.VITE_openAiKey, dangerouslyAllowBrowser: true}); 
+  let conversation = [{role: "developer", content: system_prompt}, {role: 'user', content: city}];
 
+  try{
+    response = await client.responses.create({
+    model: "gpt-5-nano",
+    reasoning: { effort: "low" }, input: conversation});
+    if (!response.ok){
+      const errorTxt = await response.text();
+      console.error(`Error ${errorTxt.status}: ${errorTxt}`)
+      throw new Error(`Error ${response.status}: ${errorTxt}`);
+
+    }
+
+    return await response.output_text[0].content[0].text;
+  }catch (err) {
+      console.error('Error communicating with AI server', err.message);
+      throw err;
+    }
+   
+}
+
+export const bookFlight = async (flight, travelers) => {
+  const bookUrl = 'test.api.amadeus.com/v1/booking/flight-orders';
+  const parameters = {
+    "data": {
+      "type": "flight-order",
+      "flightOffers": [flight],
+      "travelers": [travelers]
+    }
+  };
+  try{response = await fetch(bookUrl, {method: "POST", headers: {Authorization: `Bearer ${token.access_token}` }, body: JSON.stringify(parameters)});
+  }catch (err) {
+    console.error(`Couldn't book flight: ${err.message}`)
+    throw err
+  }
+  if (!response.ok){
+    const bookingError = await response.text()
+    throw new Error(`${bookingError}: ${bookingError.status}`);
+  
+  }
+  return await response.json();
+}

@@ -7,6 +7,7 @@ import {
   Ticket,
 } from "lucide-react";
 import "./Flight.css";
+import { bookFlight } from "../services/brain";
 
 function Flight({ flight }) {
   if (!flight) {
@@ -31,7 +32,11 @@ function Flight({ flight }) {
 
   const price = flight?.price?.grandTotal;
   const currency = flight?.price?.currency || "USD";
-
+  
+  const handleBooking = (e) => {
+    e.preventDefault();
+    alert(`Flight - ${flightNumber} booked!`)
+  }
   return (
     <div className="flight-card">
       <div className="flight-header">
@@ -83,6 +88,7 @@ function Flight({ flight }) {
           {price ? `${price} ${currency}` : "Price unavailable"}
         </p>
       </div>
+      <button onClick={handleBooking} className="book-btn">Book</button>
     </div>
   );
 }

@@ -120,3 +120,35 @@
   margin-top: 1rem;
   font-style: italic;
 }
+
+nav{
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.nav-link{
+padding-left: 20px;
+}
+
+.nav-links{
+padding-top: 10px;
+}
+
+.icon-main {
+  color: #3b82f6;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+}
+
+ .nav-brand {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #2563eb;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0rem;
+
+}  
+
