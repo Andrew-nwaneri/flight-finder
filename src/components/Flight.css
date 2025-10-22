@@ -41,6 +41,17 @@
   margin-bottom: 1rem;
 }
 
+@media screen and (min-width: 1000px) {
+  .flight-leg {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 120px;
+  margin-left: 10rem;
+}
+}
+
 .flight-leg {
   display: flex;
   align-items: center;
@@ -151,4 +162,22 @@ padding-top: 10px;
   margin-bottom: 0rem;
 
 }  
+.booking-form{
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
 
+.booking-form > div {
+  padding: 10px;
+}
+label{
+  margin: 5px;
+}
+
+input{
+  margin-bottom: 1rem;
+}

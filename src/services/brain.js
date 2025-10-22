@@ -1,4 +1,4 @@
-
+var token;
 
 export const findFlights = async ({
   origin,
@@ -23,7 +23,7 @@ export const findFlights = async ({
 
     if (!oauthResponse.ok) throw new Error(`OAuth failed: ${oauthResponse.status}`);
 
-    const token = await oauthResponse.json();
+    token = await oauthResponse.json();
 
     const params = new URLSearchParams();
 
@@ -88,23 +88,24 @@ export const getIataCode = async (city) => {
 }
 
 export const bookFlight = async (flight, travelers) => {
-  const bookUrl = 'test.api.amadeus.com/v1/booking/flight-orders';
+  const bookUrl = 'https://test.api.amadeus.com/v1/booking/flight-orders';
+  
   const parameters = {
-    "data": {
-      "type": "flight-order",
-      "flightOffers": [flight],
-      "travelers": [travelers]
+    data: {
+      type: "flight-order",
+      flightOffers: [flight],
+      travelers: [travelers]
     }
   };
-  try{response = await fetch(bookUrl, {method: "POST", headers: {Authorization: `Bearer ${token.access_token}` }, body: JSON.stringify(parameters)});
+  try{
+    const response = await fetch(bookUrl, {method: "POST", headers: {Authorization: `Bearer ${token.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(parameters) });
+      if (!response.ok){
+    const bookingError = await response.text()
+    throw new Error(`${bookingError}: ${bookingError.status}`);  } else {
+        return await response.json();
+    }
   }catch (err) {
     console.error(`Couldn't book flight: ${err.message}`)
     throw err
   }
-  if (!response.ok){
-    const bookingError = await response.text()
-    throw new Error(`${bookingError}: ${bookingError.status}`);
-  
-  }
-  return await response.json();
 }

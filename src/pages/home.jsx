@@ -11,7 +11,7 @@ function Home() {
     "CNY", "INR", "BRL", "MXN", "SGD", "HKD", "KRW", "SEK", "NOK", "DKK",
   ];
 
-  const [origin, setOrigin] = useState("PAR");
+  const [origin, setOrigin] = useState("ABJ");
   const [destination, setDestination] = useState("LON");
   const [departureDate, setDepartureDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
@@ -29,6 +29,7 @@ function Home() {
   // const [iataDestination, setIataDestination] = useState('none');
 
   const max = 20;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
