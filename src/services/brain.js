@@ -42,7 +42,7 @@ async function getAccessToken() {
 
 async function getIataCode({city}){
   if (city.length === 3){
-    return [{iata: city}];
+    return [{iata: city.toUpperCase()}];
   }
   const accessToken = await getAccessToken();
   const apiUrl = `https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=${encodeURIComponent(city)}`

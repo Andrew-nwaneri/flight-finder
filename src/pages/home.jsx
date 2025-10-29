@@ -52,8 +52,7 @@ function Home() {
       setStatus(!data?.data?.length ? 'No Flights Found!' : `${data.data.length} flights found 👇`);
     } catch (error) {
       console.error('Error fetching flights:', error);
-      setStatus("Try refreshing your browser");
-      setTimeout(() => {setStatus('Try again')}, 5000)
+      setStatus("Use city Iata-Code instead of city name, and try again");
     }
   };
 
