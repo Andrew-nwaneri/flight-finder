@@ -78,10 +78,13 @@ async function getIataCode({city}){
   }));
   return result;
   }catch (err) {
-      console.error('Network error', err.message);
-      throw err;
-    }  
-}
+    if (err.name === 'AbortError') {
+      alert('Request timed out – try again.');
+    } else {
+      alert('IATA lookup failed: ' + err.message);
+    }
+    throw err;  
+}};
 
 export const findFlights = async ({
   origin,
@@ -98,16 +101,29 @@ export const findFlights = async ({
   max}
 ) => {
   try {
+        let iataDestination;
+        let iataOrigin;
+        // ... IATA code fetching ...
+        iataDestination = await getIataCode({city: destination})
+        iataOrigin = await getIataCode({city: origin})
+        
+        const params = new URLSearchParams();
 
-    var iataOrigin;
-    var iataDestination;
-    iataDestination = await getIataCode({city: destination})
-    iataOrigin = await getIataCode({city: origin})
-    
-    const params = new URLSearchParams();
-
-    if (iataOrigin && iataOrigin[0].iata.length > 0) {params.append("originLocationCode", iataOrigin[0].iata)} else {params.append("originLocationCode", origin)};
-    if (iataDestination && iataDestination[0].iata.length > 0) {params.append("destinationLocationCode", iataDestination[0].iata)} else {params.append("destinationLocationCode", destination)};
+        // FIX: Check that the array exists AND has elements BEFORE accessing [0]
+        if (iataOrigin && iataOrigin.length > 0 && iataOrigin[0].iata) {
+            params.append("originLocationCode", iataOrigin[0].iata);
+        } else {
+            // Use the original input as a fallback IATA code
+            params.append("originLocationCode", origin.toUpperCase());
+        }
+        
+        // FIX: Check that the array exists AND has elements BEFORE accessing [0]
+        if (iataDestination && iataDestination.length > 0 && iataDestination[0].iata) {
+            params.append("destinationLocationCode", iataDestination[0].iata);
+        } else {
+            // Use the original input as a fallback IATA code
+            params.append("destinationLocationCode", destination.toUpperCase());
+        }
     if (departureDate) params.append("departureDate", departureDate);
     if (returnDate) params.append("returnDate", returnDate);
     if (adults) params.append("adults", adults);
@@ -152,8 +168,14 @@ export const findFlights = async ({
     return data;
 
   } catch (err) {
-    console.error("Error in findFlights:", err.message);
-    throw err;
+      if (err.name === 'AbortError') {
+        alert('Request timed out – try again.');
+      } else {
+        alert('IATA lookup failed: ' + err.message);
+      }
+      throw err;
+
+
   }
 };
 
