@@ -41,35 +41,42 @@ async function getAccessToken() {
 }
 
 async function getIataCode({city}){
+  if (city.length === 3){
+    return [{iata: city}];
+  }
   const accessToken = await getAccessToken();
   const apiUrl = `https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=${encodeURIComponent(city)}`
   try{
-    const response = await fetch(apiUrl, {headers: {Authorization: `Bearer ${accessToken}`}});
+    let response = await fetch(apiUrl, {headers: {Authorization: `Bearer ${accessToken}`}});
     
-    if (response.status === 401) {
-      console.warn('⚠️ Token expired mid-request. Retrying...');
-      const newToken = await getAccessToken(); // refresh and retry once
-      const retryResponse = await fetch(apiUrl, {
-        headers: { Authorization: `Bearer ${newToken}` },
-      });
-      const retryData = await retryResponse.json();
-      const retryResult = retryData.data.map((loc) => ({
-      city: loc.name,
-      iata: loc.iataCode,
-    }))
-    return retryResult;}
+// ... inside getIataCode ...
+
+ if (response.status === 401) {
+    console.warn('⚠️ Token expired mid-request. Retrying...');
+    const newToken = await getAccessToken();
+    const retryResponse = await fetch(apiUrl, {
+      headers: { Authorization: `Bearer ${newToken}` },
+    });
     
-    if (!response.ok){
-      const errTxt = response.text();
-      console.error(`${response.status}: ${errTxt}`);
-      throw new Error(errTxt);
+    if (!retryResponse.ok) { 
+      const retryErrTxt = await retryResponse.text();
+      throw new Error(`Retry failed (${retryResponse.status}): ${retryErrTxt}`);
     }
-    const data = await response.json();
-    const result = data.data.map((loc) => ({
-      city: loc.name,
-      iata: loc.iataCode,
-    }))
-    return result;
+
+    response = retryResponse;
+ }
+    
+  if (!response.ok){
+    const errTxt = await response.text(); // Await is missing here, see issue 3
+    console.error(`${response.status}: ${errTxt}`);
+    throw new Error(errTxt);
+  }
+  const data = await response.json();
+  const result = data.data.map((loc) => ({
+    city: loc.name,
+    iata: loc.iataCode,
+  }));
+  return result;
   }catch (err) {
       console.error('Network error', err.message);
       throw err;
@@ -91,35 +98,16 @@ export const findFlights = async ({
   max}
 ) => {
   try {
-    const accessToken = await getAccessToken();
+
     var iataOrigin;
     var iataDestination;
-    if (origin.length > 3){
-      console.log('Fetching ORIGIN IATA');
-      iataOrigin = await getIataCode({city: origin});
-      if (iataOrigin.length < 1){
-        iataOrigin = [{iata: origin.toUpperCase()}];
-      }
-      console.log('origin city:', iataOrigin)
-    }else{
-      iataOrigin = [{iata: origin.toUpperCase()}];
-    }
-    if (destination.length > 3){
-      console.log('Fetching DESTINATION IATA');
-      iataDestination = await getIataCode({city: destination});
-      if (iataDestination.length < 1){
-        iataDestination = [{iata: destination.toUpperCase()}];
-      }
-      console.log('Destination city:', iataDestination)
-
-    }else{
-      iataDestination = [{iata: destination.toUpperCase()}];
-    }
-
+    iataDestination = await getIataCode({city: destination})
+    iataOrigin = await getIataCode({city: origin})
+    
     const params = new URLSearchParams();
 
-    if (iataOrigin) params.append("originLocationCode", iataOrigin[0].iata);
-    if (iataDestination) params.append("destinationLocationCode", iataDestination[0].iata);
+    if (iataOrigin && iataOrigin[0].iata.length > 0) {params.append("originLocationCode", iataOrigin[0].iata)} else {params.append("originLocationCode", origin)};
+    if (iataDestination && iataDestination[0].iata.length > 0) {params.append("destinationLocationCode", iataDestination[0].iata)} else {params.append("destinationLocationCode", destination)};
     if (departureDate) params.append("departureDate", departureDate);
     if (returnDate) params.append("returnDate", returnDate);
     if (adults) params.append("adults", adults);
@@ -134,19 +122,26 @@ export const findFlights = async ({
     const flightsUrl = `https://test.api.amadeus.com/v2/shopping/flight-offers?${params.toString()}`;
     console.log("Flight search URL:", flightsUrl);
 
+    const accessToken = await getAccessToken();
     const response = await fetch(flightsUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    if (response.status === 401) {
-      console.warn('⚠️ Token expired mid-request. Retrying...');
-      const newToken = await getAccessToken(); // refresh and retry once
-      const retryResponse = await fetch(flightsUrl, {
-        headers: { Authorization: `Bearer ${newToken}` },
-      });
-      const retryData = await retryResponse.json();
-      return retryData;
+  if (response.status === 401) {
+    console.warn('⚠️ Token expired mid-request. Retrying...');
+    const newToken = await getAccessToken(); // refresh and retry once
+    const retryResponse = await fetch(flightsUrl, {
+      headers: { Authorization: `Bearer ${newToken}` },
+    });
+
+    if (!retryResponse.ok) {
+      const retryErrText = await retryResponse.text();
+      throw new Error(`Flight search retry failed (${retryResponse.status}): ${retryErrText}`);
     }
+
+    const retryData = await retryResponse.json();
+    return retryData;
+  }
 
     if (!response.ok) {
       const errText = await response.text();
