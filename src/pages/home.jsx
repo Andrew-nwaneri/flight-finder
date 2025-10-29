@@ -2,7 +2,7 @@ import { useState } from "react";
 import { findFlights } from "../services/brain";
 import Flight from "../components/flight";
 import { format } from 'date-fns';
-import { PlaneTakeoff } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import '../App.css';
 
 function Home() {
@@ -11,8 +11,8 @@ function Home() {
     "CNY", "INR", "BRL", "MXN", "SGD", "HKD", "KRW", "SEK", "NOK", "DKK",
   ];
 
-  const [origin, setOrigin] = useState("ABJ");
-  const [destination, setDestination] = useState("LON");
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
   const [departureDate, setDepartureDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -42,8 +42,6 @@ function Home() {
       setFlightData({})
       const formattedDeparture = departureDate ? format(new Date(departureDate), 'yyyy-MM-dd') : null;
       const formattedReturn = returnDate ? format(new Date(returnDate), 'yyyy-MM-dd') : null;
-      // await getIataCode(origin).then((data) => setIataOrigin(data)).catch((error) => setIataOrigin(error.message));
-      // await getIataCode(destination).then((data) => setIataDestination(data)).catch((error) => setIataDestination(error.message));
       const data = await findFlights({
         origin, destination, departureDate: formattedDeparture,
         returnDate: formattedReturn, adults, children, infants,
@@ -51,10 +49,11 @@ function Home() {
       });
 
       setFlightData(data);
-      setStatus(!data?.data?.length ? 'No Flights Found!' : 'Flights Found!');
+      setStatus(!data?.data?.length ? 'No Flights Found!' : `${data.data.length} flights found 👇`);
     } catch (error) {
       console.error('Error fetching flights:', error);
-      setStatus(`No Flights Found: ${error.message}`);
+      setStatus("Try refreshing your browser");
+      setTimeout(() => {setStatus('Try again')}, 5000)
     }
   };
 
@@ -74,7 +73,7 @@ function Home() {
             <input
               id="origin"
               type="text" 
-              placeholder="Enter Origin..."
+              placeholder="enter your city name..."
               value={origin}
               onChange={(e) => {setOrigin(e.target.value);
                                 setStatus('Search Flights')
@@ -87,7 +86,7 @@ function Home() {
             <input
               id="destination"
               type="text"
-              placeholder="Enter Destination..."
+              placeholder="enter your destnation city name..."
               value={destination}
               onChange={(e) => {setDestination(e.target.value); setStatus('Search Flights')}}
             />

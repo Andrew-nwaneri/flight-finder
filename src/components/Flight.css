@@ -41,14 +41,14 @@
   margin-bottom: 1rem;
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 800px) {
   .flight-leg {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex: 1;
   min-width: 120px;
-  margin-left: 10rem;
+  margin-left: 4.5rem;
 }
 }
 
@@ -162,22 +162,219 @@ padding-top: 10px;
   margin-bottom: 0rem;
 
 }  
-.booking-form{
-  background: #ffffff;
-  border-radius: 1rem;
+
+.ticket-card {
+  margin-top: 2rem;
   padding: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  margin-bottom: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.3s;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  background-color: #f9fafb;
+  text-align: left;
+  animation: fadeIn 0.6s ease;
 }
 
-.booking-form > div {
-  padding: 10px;
-}
-label{
-  margin: 5px;
-}
-
-input{
+.ticket-card h2 {
+  color: #0077ff;
   margin-bottom: 1rem;
 }
+
+.ticket-flight, .ticket-traveler {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.ticket-status {
+  margin-top: 1rem;
+  font-weight: 500;
+  color: green;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.download-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+  background-color: #0056b3;
+}
+
+/*
+ * 1. Global Reset: Remove default browser padding/margin 
+ * from the HTML and BODY elements. This ensures the app 
+ * starts flush against the viewport edges.
+ */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  /* Optional but recommended: makes height behave predictably */
+  min-height: 100vh; 
+  background-color: var(--bg); /* Use your defined background color */
+}
+
+/*
+ * 2. Root Container Fix: Ensure the #root element itself 
+ * doesn't introduce any margins or padding.
+ */
+#root {
+  /* This ensures the root element is flush to the edges */
+  padding: 20px; 
+  margin: 10px;
+  /* Ensures the root uses all available width */
+  width: 100%; 
+}
+
+/*
+ * 3. Preserve your existing container styles
+ */
+:root{
+  --bg: #ffffff;
+  --card: #f8fafc;
+  --muted: #6b7280;
+  --accent: #0b76ff;
+  --accent-600: #0666d6;
+  --border: #e6e9ee;
+  --danger: #e11d48;
+  --radius: 10px;
+  --gap: 1rem;
+  --container-width: 880px; /* Assuming you want the 980px adjustment */
+}
+
+/* container for the form area */
+.container {
+  max-width: var(--container-width);
+  /* The 'auto' margins here correctly center the container 
+     within the now-full-width #root element */
+  margin: 1.5rem auto; 
+  padding: 1.25rem;
+  background: transparent;
+}
+
+/* form card */
+.booking-form {
+  /* ... existing styles ... */
+  display: grid;
+  gap: var(--gap);
+  background: var(--card);
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(13,22,39,0.06);
+  border: 1px solid var(--border);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* label + input vertical rhythm */
+.booking-form label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: .35rem;
+  font-weight: 600;
+}
+
+/* shared input style */
+.booking-form input[type="text"],
+.booking-form input[type="email"],
+.booking-form input[type="number"],
+.booking-form input[type="date"],
+.booking-form select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 0.95rem;
+  color: #0f1724;
+  outline: none;
+  transition: box-shadow .12s ease, border-color .12s ease, transform .08s ease;
+  box-sizing: border-box;
+}
+
+/* focus states for accessibility */
+.booking-form input:focus,
+.booking-form select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 6px 20px rgba(11,118,255,0.08);
+  transform: translateY(-1px);
+}
+
+/* grouped inputs (two-column) */
+.full-name {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0.75rem;
+  padding-bottom: 1.0rem;
+  padding-top: 0.5rem;
+}
+
+/* phone and code side-by-side */
+.phone-number {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+/* make labelled groups stand out lightly */
+.contact-info,
+.document {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+/* smaller helper text style (if needed) */
+.booking-form .hint {
+  font-size: 0.83rem;
+  color: var(--muted);
+  margin-top: -0.25rem;
+}
+
+/* submit button */
+.submit-btn {
+  display: inline-block;
+  align-self: start;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-600) 100%);
+  color: #fff;
+  border: none;
+  padding: 0.72rem 1rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(11,118,255,0.16);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+
+/* button hover / active */
+.submit-btn:hover { transform: translateY(-2px); }
+.submit-btn:active { transform: translateY(0); box-shadow: 0 6px 18px rgba(11,118,255,0.12); }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* responsive: stack columns on small screens */
+@media (max-width: 720px) {
+  .full-name { grid-template-columns: 1fr; }
+  .phone-number { grid-template-columns: 1fr; }
+  .container { padding: 1rem; }
+}
+
+/* optional: small visual error state */
+.booking-form .error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 6px 18px rgba(225,29,72,0.08);
+}
+
+/* micro layout helpers to keep things tidy */
+.booking-form > * { margin-bottom: 0; }
