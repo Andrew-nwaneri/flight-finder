@@ -47,7 +47,7 @@ async function getIataCode({city}){
   const accessToken = await getAccessToken();
   const apiUrl = `https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=${encodeURIComponent(city)}`
   try{
-    let response = await fetch(apiUrl, {headers: {Authorization: `Bearer ${accessToken}`}});
+    let response = await fetch(apiUrl, {headers: {Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json'}});
     
 // ... inside getIataCode ...
 
@@ -55,7 +55,7 @@ async function getIataCode({city}){
     console.warn('⚠️ Token expired mid-request. Retrying...');
     const newToken = await getAccessToken();
     const retryResponse = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${newToken}` },
+      headers: { Authorization: `Bearer ${newToken}`, 'Content-Type': 'application/json' },
     });
     
     if (!retryResponse.ok) { 
@@ -72,17 +72,13 @@ async function getIataCode({city}){
     throw new Error(errTxt);
   }
   const data = await response.json();
-  const result = data.data.map((loc) => ({
+  const result = data?.data?.map((loc) => ({
     city: loc.name,
     iata: loc.iataCode,
   }));
   return result;
   }catch (err) {
-    if (err.name === 'AbortError') {
-      alert('Request timed out – try again.');
-    } else {
-      alert('IATA lookup failed: ' + err.message);
-    }
+    alert('IATA lookup failed: ' + err.message);
     throw err;  
 }};
 
@@ -168,11 +164,7 @@ export const findFlights = async ({
     return data;
 
   } catch (err) {
-      if (err.name === 'AbortError') {
-        alert('Request timed out – try again.');
-      } else {
-        alert('IATA lookup failed: ' + err.message);
-      }
+      alert('Flight lookup failed: ' + err.message);
       throw err;
 
 
