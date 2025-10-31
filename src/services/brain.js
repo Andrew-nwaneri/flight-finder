@@ -45,7 +45,7 @@ async function getIataCode({city}){
     return [{iata: city.toUpperCase()}];
   }
   const accessToken = await getAccessToken();
-  const apiUrl = `https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=${encodeURIComponent(city)}`
+  const apiUrl = `https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=${encodeURIComponent(city)}&max=1`
   try{
     let response = await fetch(apiUrl, {headers: {Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json'}});
     
@@ -71,11 +71,16 @@ async function getIataCode({city}){
     console.error(`${response.status}: ${errTxt}`);
     throw new Error(errTxt);
   }
-  const data = await response.json();
-  const result = data?.data?.map((loc) => ({
-    city: loc.name,
-    iata: loc.iataCode,
-  }));
+  const resultData = await response.json();
+
+  if (resultData?.data.length < 1){
+    const errRslt = "The Iata Code search returned empty"
+    console.error(`${response.status}: ${errRslt}`);
+    alert('IATA lookup failed by returning empty: ' + errRslt);
+    throw new Error(err);
+  }
+
+  const result = [{city: resultData.data[0].city, iata: resultData.data[0].iataCode}];
   return result;
   }catch (err) {
     alert('IATA lookup failed: ' + err.message);
