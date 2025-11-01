@@ -76,14 +76,13 @@ async function getIataCode({city}){
   if (resultData?.data.length < 1){
     const errRslt = "The Iata Code search returned empty"
     console.error(`${response.status}: ${errRslt}`);
-    alert('IATA lookup failed by returning empty: ' + errRslt);
     throw new Error(err);
   }
 
   const result = [{city: resultData.data[0].city, iata: resultData.data[0].iataCode}];
   return result;
   }catch (err) {
-    alert('IATA lookup failed: ' + err.message);
+    console.error('IATA lookup failed: ', err.message);
     throw err;  
 }};
 
@@ -169,7 +168,7 @@ export const findFlights = async ({
     return data;
 
   } catch (err) {
-      alert('Flight lookup failed: ' + err.message);
+      console.error('Flight lookup failed: ', err.message);
       throw err;
 
 
@@ -201,3 +200,4 @@ export const bookFlight = async (flight, travelers) => {
     throw err
   }
 }
+
